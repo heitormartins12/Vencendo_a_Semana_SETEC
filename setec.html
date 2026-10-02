@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tankando a Semana</title>
+  <link rel="stylesheet" href="setec.css">
+</head>
+<body>
+
+  <div id="start-menu" class="start-menu">
+    <div class="menu-content">
+      <div class="menu-badge">SIMULADOR DE SOBREVIVÊNCIA</div>
+      <h1 class="menu-title">Tankando a<br>Semana</h1>
+      <p class="menu-subtitle">
+        Balanceie <span>Sono</span>, <span>Alimentação</span>, <span>Estudos</span> e <span>Lazer</span><br>
+        e tente passar na prova final!
+      </p>
+
+      <div class="menu-features">
+        <div class="feature">😴 Gerencie seu sono</div>
+        <div class="feature">🍕 Escolha o que comer</div>
+        <div class="feature">📚 Estude com estratégia</div>
+        <div class="feature">🎮 Não esqueça do lazer</div>
+      </div>
+
+      <button class="btn-start" onclick="startGame()">
+        Começar a Semana
+      </button>
+
+      <button class="btn-help" onclick="openHelp()">Como Jogar</button>
+
+      <p class="menu-credit">Criado por <strong>Heitor Martins</strong></p>
+    </div>
+  </div>
+
+  <div class="container hidden" id="game-container">
+    <header>
+      <h1>Tankando a Semana</h1>
+      <p class="subtitle">Sobreviva à semana de provas balanceando Sono, Comida, Estudos e Lazer</p>
+    </header>
+
+    <div id="game">
+      <div class="status-bar">
+        <div class="day-info">
+          <span id="day-name">Segunda-feira</span> • <span id="time">07:00</span>
+        </div>
+        <div class="knowledge">
+          Conhecimento: <strong id="knowledge-value">0</strong>/100
+        </div>
+      </div>
+
+      <div class="character-section">
+        <div class="character" id="character">
+          <div class="character-face" id="character-face">😊</div>
+          <div class="character-status" id="character-status">Estudante equilibrado</div>
+        </div>
+      </div>
+
+      <div class="bars">
+        <div class="bar-card sono">
+          <div class="bar-header">
+            <span>Sono</span>
+            <span id="sono-val">70</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="sono-bar" style="width: 70%"></div>
+          </div>
+        </div>
+
+        <div class="bar-card comida">
+          <div class="bar-header">
+            <span>Alimentação</span>
+            <span id="comida-val">70</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="comida-bar" style="width: 70%"></div>
+          </div>
+        </div>
+
+        <div class="bar-card estudo">
+          <div class="bar-header">
+            <span>Estudos</span>
+            <span id="estudo-val">0</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="estudo-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bar-card lazer">
+          <div class="bar-header">
+            <span>Lazer</span>
+            <span id="lazer-val">60</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="lazer-bar" style="width: 60%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="effects" id="effects"></div>
+
+      <div class="actions">
+        <div class="action-group">
+          <h3>😴 Sono</h3>
+          <button class="btn" onclick="doAction('dormir8')">
+            Dormir 8 horas
+            <small>+Sono alto • +Lazer</small>
+          </button>
+          <button class="btn" onclick="doAction('dormir6')">
+            Dormir 6 horas
+            <small>+Sono médio</small>
+          </button>
+          <button class="btn" onclick="doAction('cochilo')">
+            Cochilo 2 horas
+            <small>+Sono rápido</small>
+          </button>
+        </div>
+
+        <div class="action-group">
+          <h3>🍽️ Alimentação</h3>
+          <button class="btn" onclick="doAction('refeicao')">
+            Refeição balanceada (2h)
+            <small>+Comida + Foco</small>
+          </button>
+          <button class="btn" onclick="doAction('fastfood')">
+            Fast-food (1h)
+            <small>+Comida rápida • Letargia</small>
+          </button>
+          <button class="btn" onclick="doAction('cafe')">
+            Café / Energético (1h)
+            <small>Energia temporária + Crash</small>
+          </button>
+        </div>
+
+        <div class="action-group">
+          <h3>📚 Estudos</h3>
+          <button class="btn" onclick="doAction('estudar2')">
+            Estudo focado (2h)
+            <small>Ganho normal de conhecimento</small>
+          </button>
+          <button class="btn" onclick="doAction('revisao')">
+            Revisão rápida (1h)
+            <small>Ganho menor, menos cansativo</small>
+          </button>
+          <button class="btn" onclick="doAction('grupo')">
+            Grupo de estudos (3h)
+            <small>+Conhecimento + Lazer social</small>
+          </button>
+        </div>
+
+        <div class="action-group">
+          <h3>🎮 Lazer</h3>
+          <button class="btn" onclick="doAction('passeio')">
+            Passeio / Hobby (2h)
+            <small>+Lazer de qualidade</small>
+          </button>
+          <button class="btn" onclick="doAction('serie')">
+            Série / Filme (2h)
+            <small>+Lazer médio</small>
+          </button>
+          <button class="btn" onclick="doAction('redes')">
+            Redes sociais (1h)
+            <small>+Lazer baixo • Risco Feed Infinito</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="log" id="log">
+        <p class="important">Bem-vindo! Você tem 5 dias para se preparar para as provas. Cuide bem das suas barras!</p>
+      </div>
+    </div>
+
+    <div id="quiz-screen" class="quiz-screen hidden">
+      <h2>📝 Prova Final</h2>
+      <p class="quiz-intro">Chegou o grande dia! Responda as 5 perguntas. Seu conhecimento da semana vai influenciar a nota.</p>
+      <div id="quiz-container"></div>
+      <button class="modal-btn primary" id="submit-quiz" onclick="submitQuiz()">Entregar Prova</button>
+    </div>
+
+    <div id="end-screen" class="end-screen hidden"></div>
+
+    <footer class="credits">
+      <p>Criado por: <strong>Heitor Martins</strong></p>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h2 id="modal-title">Evento</h2>
+      <p id="modal-text"></p>
+      <div class="modal-buttons" id="modal-buttons"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="help-modal">
+    <div class="modal">
+      <h2>Como Jogar</h2>
+      <div class="help-text">
+        <p><strong>Objetivo:</strong> Passar na prova no final da semana (nota mínima 60).</p>
+        <br>
+        <p><strong>As 4 Barras:</strong></p>
+        <p>• <strong>Sono</strong> → Baixo demais = estudar rende pouco</p>
+        <p>• <strong>Alimentação</strong> → Coma bem para manter a energia</p>
+        <p>• <strong>Estudos</strong> → Quanto mais alta, melhor a nota</p>
+        <p>• <strong>Lazer</strong> → Evita o esgotamento (Burnout)</p>
+        <br>
+        <p><strong>Regra de ouro:</strong><br>
+        Se qualquer barra chegar a 0, você perde.<br>
+        Equilíbrio é mais importante que só estudar.</p>
+      </div>
+      <button class="modal-btn primary" onclick="closeHelp()">Entendi</button>
+    </div>
+  </div>
+
+  <script src="setec.js"></script>
+</body>
+</html>
