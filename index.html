@@ -8,24 +8,122 @@
 </head>
 <body>
 
+  <div id="splash" class="splash">
+    <div class="splash-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+      <div class="grid-floor"></div>
+      <div class="scanlines"></div>
+    </div>
+
+    <div class="splash-particles" id="splashParticles"></div>
+
+    <div class="splash-floaters" aria-hidden="true">
+      <span class="flo fl-1" title="Blocos: Sono">😴</span>
+      <span class="flo fl-2" title="Blocos: Alimentação">🍽️</span>
+      <span class="flo fl-3" title="Blocos: Estudos">📚</span>
+      <span class="flo fl-4" title="Blocos: Lazer">🎮</span>
+      <span class="flo fl-5" title="Café">☕</span>
+      <span class="flo fl-6" title="Redes">📱</span>
+    </div>
+
+    <div class="splash-ring ring-1"></div>
+    <div class="splash-ring ring-2"></div>
+    <div class="splash-glow" id="splashGlow"></div>
+
+    <div class="splash-content">
+      <div class="splash-badge">SETEC 2026 &nbsp;•&nbsp; SIMULADOR DE SOBREVIVÊNCIA</div>
+      <h1 class="splash-title" id="splashTitle">
+        <span class="tgl" data-text="Vencendo">Vencendo</span>
+        <span class="tgl" data-text="a Semana">a Semana</span>
+      </h1>
+      <p class="splash-tagline">Sono <em>•</em> Alimentação <em>•</em> Estudos <em>•</em> Lazer</p>
+
+      <div class="splash-days" aria-hidden="true">
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span class="sj">Sex ✦ Prova</span>
+      </div>
+
+      <button class="splash-enter" id="splashEnter">ENTRAR</button>
+      <div class="splash-hint">ou aperte <kbd>Enter</kbd> &nbsp;•&nbsp; clique ao redor pra soltar faíscas</div>
+    </div>
+
+    <div class="splash-flash" id="splashFlash"></div>
+
+    <div class="splash-credit">Criado por <strong>Heitor Martins</strong></div>
+  </div>
+
   <div id="start-menu" class="start-menu">
+    <div class="menu-bg" aria-hidden="true">
+      <div class="mblob mblob-1"></div>
+      <div class="mblob mblob-2"></div>
+      <div class="mblob mblob-3"></div>
+      <div class="grid-floor"></div>
+      <div class="scanlines"></div>
+      <div class="menu-floaters">
+        <span class="flo fl-1" title="Sono">😴</span>
+        <span class="flo fl-2" title="Alimentação">🍽️</span>
+        <span class="flo fl-3" title="Estudos">📚</span>
+        <span class="flo fl-4" title="Lazer">🎮</span>
+      </div>
+    </div>
+
     <div class="menu-content">
-      <div class="menu-badge">SIMULADOR DE SOBREVIVÊNCIA</div>
-      <h1 class="menu-title">Vencendo a<br>Semana</h1>
+      <div class="menu-badge">SETEC 2026 &nbsp;•&nbsp; SIMULADOR DE SOBREVIVÊNCIA</div>
+
+      <h1 class="menu-title">
+        <span class="mt-1">Vencendo</span>
+        <span class="mt-2">a Semana</span>
+      </h1>
+
       <p class="menu-subtitle">
-        Balanceie <span>Sono</span>, <span>Alimentação</span>, <span>Estudos</span> e <span>Lazer</span><br>
-        e tente passar na prova final!
+        Sobreviva à semana de provas balanceando suas <span>4 barras</span><br>
+        e chegue no <span>sexto dia</span> pronto para a final!
       </p>
 
-      <div class="menu-features">
-        <div class="feature">😴 Gerencie seu sono</div>
-        <div class="feature">🍕 Escolha o que comer</div>
-        <div class="feature">📚 Estude com estratégia</div>
-        <div class="feature">🎮 Não esqueça do lazer</div>
+      <div class="week-chips" aria-hidden="true">
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span class="ch-sex">Sex ✦ Prova</span>
+      </div>
+
+      <div class="vitals">
+        <div class="vital sono">
+          <span class="vt-ico" aria-hidden="true">😴</span>
+          <strong>Sono</strong>
+          <em>Descansar rende foco</em>
+          <span class="vbar"><i style="width:72%"></i></span>
+        </div>
+        <div class="vital comida">
+          <span class="vt-ico" aria-hidden="true">🍽️</span>
+          <strong>Alimentação</strong>
+          <em>Energia estável</em>
+          <span class="vbar"><i style="width:64%"></i></span>
+        </div>
+        <div class="vital estudo">
+          <span class="vt-ico" aria-hidden="true">📚</span>
+          <strong>Estudos</strong>
+          <em>Define a dificuldade da prova</em>
+          <span class="vbar"><i style="width:38%"></i></span>
+        </div>
+        <div class="vital lazer">
+          <span class="vt-ico" aria-hidden="true">🎮</span>
+          <strong>Lazer</strong>
+          <em>Zero aqui = burnout</em>
+          <span class="vbar"><i style="width:56%"></i></span>
+        </div>
       </div>
 
       <button class="btn-start" onclick="startGame()">
         Começar a Semana
+        <small>5 dias • 4 barras • 1 prova</small>
       </button>
 
       <button class="btn-help" onclick="openHelp()">Como Jogar</button>
@@ -38,6 +136,7 @@
     <header>
       <h1>Vencendo a Semana</h1>
       <p class="subtitle">Sobreviva à semana de provas balanceando Sono, Comida, Estudos e Lazer</p>
+      <div class="week-track" aria-hidden="true"></div>
     </header>
 
     <div id="game">

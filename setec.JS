@@ -954,3 +954,203 @@ function endGame(forceWin = null) {
 }
 
 updateUI();
+
+/* ==================================================================== */
+/* ====================  TELA DE ABERTURA (SPLASH)  =================== */
+/* ==================================================================== */
+(function () {
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+
+  const bg       = splash.querySelector(".splash-bg");
+  const rings    = splash.querySelectorAll(".splash-ring");
+  const floaters = splash.querySelector(".splash-floaters");
+  const content  = splash.querySelector(".splash-content");
+  const partBox  = document.getElementById("splashParticles");
+  const title    = document.getElementById("splashTitle");
+  const enterBtn = document.getElementById("splashEnter");
+  const flashEl  = document.getElementById("splashFlash");
+
+  const COLORS = ["#00f0ff", "#ff2d9b", "#ffd600", "#a78bfa"];
+  const glowEl = document.getElementById("splashGlow");
+  let entering = false;
+  let pTimer = null, gTimer = null, sDelay = null;
+  let rafPending = false, mx = 0, my = 0, lastTrail = 0;
+
+  // libera o fill da animação de entrada p/ tilt e saída limpos
+  setTimeout(() => { content.style.animation = "none"; }, 1500);
+
+  /* ---- glitch RGB: fantasmas sempre on; este intervalo só dá o
+     aperto extra de vez em quando ---- */
+  gTimer = setInterval(() => {
+    title.classList.add("glitching");
+    setTimeout(() => title.classList.remove("glitching"), 520);
+  }, rand(3000, 5600));
+
+  /* ---- partículas neon subindo ---- */
+  function spawnParticle() {
+    const s = document.createElement("span");
+    const size = rand(2, 7);
+    const c = COLORS[rand(0, COLORS.length - 1)];
+    s.style.width = s.style.height = size + "px";
+    s.style.left = randf(0, 100) + "vw";
+    s.style.background = c;
+    s.style.boxShadow = "0 0 " + (size * 3) + "px " + c;
+    s.style.animationDuration = randf(6, 13) + "s";
+    s.style.animationDelay = randf(0, 1.4) + "s";
+    partBox.appendChild(s);
+    s.addEventListener("animationend", () => s.remove());
+  }
+  for (let i = 0; i < 24; i++) spawnParticle();
+  pTimer = setInterval(spawnParticle, 220);
+
+  /* ---- estrelas cadentes em loop ---- */
+  function spawnShoot() {
+    if (entering) return;
+    const st = document.createElement("span");
+    st.className = "shoot";
+    st.style.left = randf(5, 78) + "vw";
+    st.style.top = randf(2, 42) + "vh";
+    st.style.width = rand(90, 180) + "px";
+    st.style.setProperty("--sang", randf(-40, -12) + "deg");
+    st.style.setProperty("--sdx", randf(38, 95) + "vw");
+    st.style.setProperty("--sdy", randf(20, 52) + "vh");
+    st.style.setProperty("--sdur", randf(0.9, 1.6) + "s");
+    splash.appendChild(st);
+    st.addEventListener("animationend", () => st.remove());
+  }
+  for (let i = 0; i < 3; i++) spawnShoot();
+  (function scheduleShoots() {
+    sDelay = setTimeout(() => {
+      spawnShoot();
+      scheduleShoots();
+    }, rand(900, 2200));
+  })();
+
+  /* ---- parallax: mouse/toque desloca fundo, emojis, anéis e inclina o card ---- */
+  splash.addEventListener("pointermove", (e) => {
+    mx = (e.clientX / innerWidth - 0.5) * 2;
+    my = (e.clientY / innerHeight - 0.5) * 2;
+
+    // glow segue o cursor (fundo reativo)
+    if (!entering && glowEl) {
+      glowEl.style.left = e.clientX + "px";
+      glowEl.style.top = e.clientY + "px";
+    }
+
+    // rastro de faíscas enquanto o mouse se move
+    const now = performance.now();
+    if (!entering && now - lastTrail > 85) {
+      lastTrail = now;
+      burstAt(e.clientX, e.clientY, 1);
+    }
+
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(applyParallax);
+    }
+  });
+
+  function applyParallax() {
+    rafPending = false;
+    if (entering) return;
+    bg.style.transform = "translate3d(" + (mx * 26) + "px," + (my * 18) + "px,0)";
+    if (floaters) floaters.style.transform = "translate3d(" + (mx * 48) + "px," + (my * 36) + "px,0)";
+    rings.forEach((r, i) => {
+      r.style.translate = ((mx * -16) * (i + 1)) + "px " + ((my * -12) * (i + 1)) + "px";
+    });
+    content.style.transform = "rotateX(" + (-my * 4) + "deg) rotateY(" + (mx * 5) + "deg)";
+  }
+
+  /* ---- ação de clique em qualquer lugar: ripple + faíscas + kick no título ---- */
+  splash.addEventListener("pointerdown", (e) => {
+    if (entering) return;
+    if (enterBtn.contains(e.target)) return; // o botão tem o próprio caminho
+    rippleAt(e.clientX, e.clientY);
+    burstAt(e.clientX, e.clientY, 10);
+    title.classList.add("kick");
+    setTimeout(() => title.classList.remove("kick"), 480);
+  });
+
+  function rippleAt(x, y) {
+    const r = document.createElement("span");
+    r.className = "ripple";
+    const c = COLORS[rand(0, COLORS.length - 1)];
+    r.style.left = x + "px";
+    r.style.top = y + "px";
+    r.style.setProperty("--rcol", hexA(c, 0.85));
+    splash.appendChild(r);
+    r.addEventListener("animationend", () => r.remove());
+  }
+
+  function burstAt(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      const sp = document.createElement("span");
+      const ang = randf(0, Math.PI * 2);
+      const dist = randf(50, 150);
+      const c = COLORS[rand(0, COLORS.length - 1)];
+      sp.className = "spark";
+      sp.style.left = x + "px";
+      sp.style.top = y + "px";
+      sp.style.background = c;
+      sp.style.boxShadow = "0 0 10px " + c;
+      sp.style.setProperty("--spx", (Math.cos(ang) * dist) + "px");
+      sp.style.setProperty("--spy", (Math.sin(ang) * dist) + "px");
+      sp.style.setProperty("--sdur", randf(0.55, 0.95) + "s");
+      splash.appendChild(sp);
+      sp.addEventListener("animationend", () => sp.remove());
+    }
+  }
+
+  function hexA(hex, a) {
+    const h = hex.replace("#", "");
+    return "rgba(" + parseInt(h.slice(0, 2), 16) + "," + parseInt(h.slice(2, 4), 16) + "," + parseInt(h.slice(4, 6), 16) + "," + a + ")";
+  }
+
+  function flashOn() {
+    flashEl.style.setProperty("--fxcol", hexA(COLORS[rand(0, COLORS.length - 1)], 0.85));
+    flashEl.classList.remove("on");
+    void flashEl.offsetWidth;
+    flashEl.classList.add("on");
+  }
+
+  /* ---- ENTRAR: único caminho para o menu ---- */
+  function pressEnter() {
+    if (entering) return;
+    entering = true;
+    clearInterval(pTimer);
+    clearInterval(gTimer);
+
+    flashOn();
+    const rect = enterBtn.getBoundingClientRect();
+    burstAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 18);
+
+    content.style.animation = "none";
+    content.style.transform = "";
+    splash.classList.add("exit");
+
+    setTimeout(() => {
+      splash.remove();
+
+      // reinicia a animação de entrada do menu principal
+      const menu = document.querySelector(".start-menu .menu-content");
+      if (menu) {
+        menu.style.animation = "none";
+        void menu.offsetWidth;
+        menu.style.animation = "";
+      }
+    }, 800);
+  }
+
+  enterBtn.addEventListener("click", pressEnter);
+
+  // Enter/Espaço = apertar o botão
+  document.addEventListener("keydown", (e) => {
+    if (!document.getElementById("splash")) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      pressEnter();
+    }
+  });
+})();
