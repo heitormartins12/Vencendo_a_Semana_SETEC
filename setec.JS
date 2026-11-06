@@ -249,6 +249,7 @@ function startGame() {
   setTimeout(() => {
     menu.style.display = "none";
     game.classList.remove("hidden");
+    startBalloons();
   }, 600);
 }
 
@@ -298,6 +299,7 @@ function updateUI() {
   });
 
   updateCharacter();
+  markLow();
 }
 
 function formatTime(h) {
@@ -538,6 +540,7 @@ function doAction(name) {
   const action = actions[name];
   if (!action) return;
 
+  const before = snap(), fx0 = state.effects.map(e => e.name);
   state.hour += action.hours;
   state.comida = clamp(state.comida - action.hours * randf(1.9, 2.9));
   state.sono = clamp(state.sono - action.hours * randf(1.3, 2.1));
@@ -568,6 +571,7 @@ function doAction(name) {
     endDay();
   }
 
+  showDeltas(before, fx0, actionTitle(name));
   updateUI();
   checkGameOver();
 }
@@ -766,8 +770,10 @@ function showModal(event) {
     btn.className = "modal-btn";
     btn.textContent = choice.label;
     btn.onclick = () => {
+      const before = snap(), fx0 = state.effects.map(e => e.name);
       choice.effect();
       checkStatus();
+      showDeltas(before, fx0, event.title);
       updateUI();
       modal.classList.remove("active");
       checkGameOver();
@@ -951,6 +957,81 @@ function endGame(forceWin = null) {
     <br>
     <button class="modal-btn primary" onclick="location.reload()">Tentar de novo</button>
   `;
+}
+
+/* ==================================================================== */
+/* ===========  POP-UPS DAS BARRAS + BALÕES DO BARBOSA FERRAZ  ======== */
+/* ==================================================================== */
+const BAR_META = {
+  sono:   { nome: "Sono",        ico: "😴" },
+  comida: { nome: "Alimentação", ico: "🍽️" },
+  estudo: { nome: "Estudos",     ico: "📚" },
+  lazer:  { nome: "Lazer",       ico: "🎮" }
+};
+const LOW_AT = { sono: 22, comida: 18, lazer: 12 };
+
+function snap() {
+  return { sono: state.sono, comida: state.comida, estudo: state.estudo, lazer: state.lazer };
+}
+
+function actionTitle(name) {
+  const b = document.querySelector(`.btn[onclick="doAction('${name}')"]`);
+  return b ? b.firstChild.textContent.trim() : "Ação";
+}
+
+function markLow() {
+  Object.keys(LOW_AT).forEach(k =>
+    document.querySelector(".bar-card." + k).classList.toggle("low", state[k] <= LOW_AT[k]));
+}
+
+function showDeltas(before, fxBefore, title) {
+  if (state.gameOver) return;
+  const rows = [];
+  Object.keys(BAR_META).forEach(k => {
+    const d = state[k] - before[k];
+    if (!d) return;
+    const up = d > 0, txt = (up ? "+" : "−") + Math.abs(d);
+    rows.push(`<li class="t-row ${k} ${up ? "up" : "down"}"><span>${BAR_META[k].ico} ${BAR_META[k].nome}</span><b>${up ? "▲" : "▼"} ${txt}</b></li>`);
+    const pop = document.createElement("span");
+    pop.className = "bar-pop " + (up ? "up" : "down");
+    pop.textContent = txt;
+    document.querySelector(".bar-card." + k).appendChild(pop);
+    setTimeout(() => pop.remove(), 1400);
+  });
+  state.effects.filter(e => !fxBefore.includes(e.name)).forEach(e =>
+    rows.push(`<li class="t-row fx ${e.good ? "up" : "down"}"><span>${e.good ? "✨" : "⚠️"} ${e.name}</span><b>novo efeito</b></li>`));
+  if (!rows.length) return;
+
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerHTML = `<strong>${title}</strong><ul>${rows.join("")}</ul>`;
+  const stack = document.getElementById("toastStack");
+  stack.prepend(t);
+  while (stack.children.length > 3) stack.lastElementChild.remove();
+  setTimeout(() => t.classList.add("out"), 3200);
+  setTimeout(() => t.remove(), 3600);
+}
+
+function startBalloons() {
+  const layer = document.getElementById("bgLogoLayer");
+  if (!layer || layer.dataset.on || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  layer.dataset.on = "1";
+
+  function send(first) {
+    if (document.hidden || layer.children.length >= 7) return;
+    const b = document.createElement("div");
+    b.className = "balloon";
+    b.style.cssText =
+      `left:${randf(1, 90)}%;width:${rand(76, 150)}px;--sway:${rand(16, 58)}px;--tilt:${rand(4, 10)}deg;` +
+      `animation-duration:${randf(16, 26)}s,${randf(3.6, 6.2)}s;` +
+      `animation-delay:${first ? -randf(2, 12) : 0}s,0s`;
+    b.innerHTML = '<img src="logo-barbosa-ferraz.png" alt=""><i></i>';
+    layer.appendChild(b);
+    b.addEventListener("animationend", e => { if (e.animationName === "balloonRise") b.remove(); });
+  }
+
+  for (let i = 0; i < 4; i++) send(true);
+  setInterval(send, 2600);
 }
 
 updateUI();
